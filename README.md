@@ -6,6 +6,10 @@ Garden thing
 * Soil Moisture Sensor
 * Temperature and Humidity Sensor
 * Ambient Light Sensor
+* Solar Buddy
+* Solar Panel
+* Lipo
+* Transistors
 
 # Datasheets
 
@@ -29,3 +33,17 @@ Garden thing
 * Product link: https://www.sparkfun.com/products/8688
 * Datasheet: https://www.sparkfun.com/datasheets/Sensors/Imaging/TEMT6000.pdf
 * Hookup guide: https://learn.sparkfun.com/tutorials/temt6000-ambient-light-sensor-hookup-guide
+
+## Solar Buddy
+* Product link: https://www.sparkfun.com/products/12885
+* Schematic: https://cdn.sparkfun.com/datasheets/Prototyping/SunnyBuddy-v13a.pdf
+* Datasheet: https://cdn.sparkfun.com/datasheets/Prototyping/LT3652.pdf
+* Hookup guide: https://learn.sparkfun.com/tutorials/sunny-buddy-solar-charger-v13-hookup-guide-
+
+## 2W Solar Panel
+* Product link: https://www.sparkfun.com/products/13781
+
+## Lipo
+
+## Transistors
+* Datasheet: https://cdn.sparkfun.com/datasheets/Components/General/BC337.pdf
