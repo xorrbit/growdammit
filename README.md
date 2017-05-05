@@ -17,8 +17,8 @@ Garden thing
 #### Temperature and Humidity Sensor
 * GND pin connected to GND
 * 3.3V pin connected to 3.3V
-* SDA pin connected to ???
-* SCL pin connected to ???
+* SDA pin connected to SD0 (SDD0)
+* SCL pin connected to CLK (SDCLK)
 
 ## Parts list
 * ESP8266 12E Dev Board
