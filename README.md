@@ -35,6 +35,7 @@ Garden thing
 ## ESP8266 Dev Board
 * Product link: https://www.banggood.com/Geekcreit-Doit-NodeMcu-Lua-ESP8266-ESP-12E-WIFI-Development-Board-p-985891.html
 * Getting started with Arduino IDE guide: http://www.instructables.com/id/Programming-the-ESP8266-12E-using-Arduino-software/
+* USB Driver: http://www.chinstruments.com/downloads.shtml
 * Pinout: http://www.kloppenborg.net/images/blog/esp8266/esp8266-node-mcu-pinout.png
 ![blah](http://www.kloppenborg.net/images/blog/esp8266/esp8266-node-mcu-pinout.png)
 
