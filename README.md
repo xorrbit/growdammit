@@ -1,6 +1,25 @@
 # growdammit
 Garden thing
 
+## Design
+### Circuit
+
+#### Soil Moisture Sensor
+* SIG pin connected to AD0
+* GND pin connected to GND
+* VCC pin connected to D2 (GPIO4)
+
+#### Ambient Light Sensor
+* SIG pin connected to AD0
+* GND pin connected to GND
+* VCC pin connected to D1 (GPIO5)
+
+#### Temperature and Humidity Sensor
+* GND pin connected to GND
+* 3.3V pin connected to 3.3V
+* SDA pin connected to ???
+* SCL pin connected to ???
+
 ## Parts list
 * ESP8266 12E Dev Board
 * Soil Moisture Sensor
