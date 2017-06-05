@@ -33,6 +33,7 @@ Garden thing
 # Datasheets
 
 ## ESP8266 Dev Board
+* Development Docs: https://arduino-esp8266.readthedocs.io/en/latest/index.html
 * Product link: https://www.banggood.com/Geekcreit-Doit-NodeMcu-Lua-ESP8266-ESP-12E-WIFI-Development-Board-p-985891.html
 * Getting started with Arduino IDE guide: http://www.instructables.com/id/Programming-the-ESP8266-12E-using-Arduino-software/
 * USB Driver: http://www.chinstruments.com/downloads.shtml
