@@ -1,5 +1,8 @@
 # growdammit
-Garden thing
+Garden thing, logs temperature, humidity, soil moisture, and ambient light.
+
+Prototype:
+![growdammit prototype](http://i.imgur.com/rfPmIEe.jpg)
 
 ## Design
 ### Circuit
