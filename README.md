@@ -4,6 +4,9 @@ Garden thing, logs temperature, humidity, soil moisture, and ambient light.
 Prototype:
 ![growdammit prototype](http://i.imgur.com/rfPmIEe.jpg)
 
+Prototype graph from logging overnight:
+![growdammit prototype graph](https://i.imgur.com/FM1RWV9.png)
+
 ## Design
 ### Circuit
 
