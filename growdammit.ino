@@ -1,5 +1,5 @@
 // comment out this next line to enable debug mode
-// this sets the reporting period to 2 seconds instead of five minutes
+// this sets the reporting period to 10 seconds instead of one minute
 // and outputs on the serial port
 #define DEBUG
 
@@ -44,7 +44,22 @@ WiFiUDP udp;
 unsigned long unix_time;
 unsigned long reset_time;
 
-unsigned long inline ntp_unix_time ();
+unsigned long inline ntp_unix_time();
+String urlencode(String str);
+
+unsigned long chip_id;
+// Jan++4+2017+11%3A11%3A11
+char build_time_cstr[25];
+// 100.00
+char humidity_cstr[7];
+char temperature_cstr[7];
+String build_time;
+int ambient_light, soil_moisture;
+float humidity, temperature;
+
+unsigned int i, len;
+
+char https_url[256];
 
 void setup() {
   // disables soil and light sensors on boot
@@ -63,76 +78,78 @@ void setup() {
 
   // figure out roughly when our reset time was
   reset_time = 0;
-  while(reset_time == 0)
+  while (reset_time == 0)
     reset_time = ntp_unix_time();
-  reset_time -= (millis()/1000);
-  
+  reset_time -= (millis() / 1000);
+
+  chip_id = ESP.getChipId();
+  sprintf(build_time_cstr, "%s %s", __DATE__, __TIME__);
+  build_time = urlencode(String(build_time_cstr));
+
   pinMode(LED_BUILTIN, OUTPUT);
 #ifdef DEBUG
   Serial.begin(115200);
   Serial.println();
   Serial.println("GROW DAMMIT!");
-  Serial.print("built on ");
-  Serial.print(__DATE__);
-  Serial.print(" at ");
-  Serial.println(__TIME__);
-  Serial.print("Reset time: ");
-  Serial.println(reset_time);
 #endif
 }
 
 void loop() {
-  int light, soil;
-  float humidity, temperature;
-  
   digitalWrite(LED_BUILTIN, LOW);
 
   // read light sensor
   digitalWrite(LIGHT_ENABLE, HIGH);
   delay(100);
-  light = analogRead(A0);
+  ambient_light = analogRead(A0);
   digitalWrite(LIGHT_ENABLE, LOW);
   delay(100);
-  
+
   // read soil sensor
   digitalWrite(SOIL_ENABLE, HIGH);
   delay(100);
-  soil = analogRead(A0);
+  soil_moisture = analogRead(A0);
   digitalWrite(SOIL_ENABLE, LOW);
   delay(100);
 
   // read humidity and temperature
   humidity = weather.readHumidity();
+  dtostrf(humidity, 5, 2, humidity_cstr);
   temperature = weather.readTemperature();
+  dtostrf(temperature, 5, 2, temperature_cstr);
 
   unix_time = reset_time + (millis() / 1000);
-                                
+  
+  len = sprintf(https_url, "%s", logging_url);
+  len += sprintf(https_url+len, "?unix_time=%d", unix_time);
+  len += sprintf(https_url+len, "&temperature=%s", temperature_cstr);
+  len += sprintf(https_url+len, "&humidity=%s", humidity_cstr);
+  len += sprintf(https_url+len, "&ambient_light=%d", ambient_light);
+  len += sprintf(https_url+len, "&soil_moisture=%d", soil_moisture);
+  len += sprintf(https_url+len, "&chip_id=%d", chip_id);
+  len += sprintf(https_url+len, "&build_time=%s", build_time.c_str());
+  len += sprintf(https_url+len, "&reset_time=%d", reset_time);
+
+  https.connect(logging_host, 443);
+  https.print(String("GET ") + https_url + " HTTP/1.1\r\n" +
+               "Host: " + logging_host + "\r\n" +
+               "User-Agent: growdammit\r\n" +
+               "Connection: close\r\n\r\n");
+
   digitalWrite(LED_BUILTIN, HIGH);
 #ifdef DEBUG
-  Serial.print("Light: ");
-  Serial.print(light);
-  Serial.print("  Soil: ");
-  Serial.print(soil);
-  Serial.print("  Temperature: ");
-  Serial.print(temperature);
-  Serial.print("  Humiditiy: ");
-  Serial.print(humidity);
-  Serial.print("  Time: ");
-  Serial.print(unix_time);
-  Serial.println();
+  Serial.println(https_url);
   delay(10000);
 #else
-  delay(60000);
+  delay(LOG_PERIOD);
 #endif
 }
 
 unsigned long ntp_unix_time()
 {
   unsigned long unix_time = 0;
-  int i, len;
   const byte NTP_HEADER[4] = { 0xEC, 0x06, 0x00, 0xE3 };
   const byte NULL_DATA[1] = { 0x00 };
-  
+
   if (!udp.begin(ntp_local_port))
     return 0;
 
@@ -160,5 +177,39 @@ unsigned long ntp_unix_time()
     unix_time = unix_time << 8 | udp.read();
   udp.flush();
 
-  return unix_time - 2208988800ul; 
+  return unix_time - 2208988800ul;
+}
+
+String urlencode(String str)
+{
+  String encodedString = "";
+  char c;
+  char code0;
+  char code1;
+  char code2;
+  for (int i = 0; i < str.length(); i++) {
+    c = str.charAt(i);
+    if (c == ' ') {
+      encodedString += '+';
+    } else if (isalnum(c)) {
+      encodedString += c;
+    } else {
+      code1 = (c & 0xf) + '0';
+      if ((c & 0xf) > 9) {
+        code1 = (c & 0xf) - 10 + 'A';
+      }
+      c = (c >> 4) & 0xf;
+      code0 = c + '0';
+      if (c > 9) {
+        code0 = c - 10 + 'A';
+      }
+      code2 = '\0';
+      encodedString += '%';
+      encodedString += code0;
+      encodedString += code1;
+      //encodedString+=code2;
+    }
+    yield();
+  }
+  return encodedString;
 }
