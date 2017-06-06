@@ -100,21 +100,21 @@ void loop() {
   // read light sensor
   digitalWrite(LIGHT_ENABLE, HIGH);
   delay(100);
-  ambient_light = analogRead(A0);
+  ambient_light = analogSample();
   digitalWrite(LIGHT_ENABLE, LOW);
   delay(100);
 
   // read soil sensor
   digitalWrite(SOIL_ENABLE, HIGH);
   delay(100);
-  soil_moisture = analogRead(A0);
+  soil_moisture = analogSample();
   digitalWrite(SOIL_ENABLE, LOW);
   delay(100);
 
   // read humidity and temperature
-  humidity = weather.readHumidity();
+  humidity = humiditySample();
   dtostrf(humidity, 5, 2, humidity_cstr);
-  temperature = weather.readTemperature();
+  temperature = temperatureSample();
   dtostrf(temperature, 5, 2, temperature_cstr);
 
   unix_time = reset_time + (millis() / 1000);
@@ -212,4 +212,105 @@ String urlencode(String str)
     yield();
   }
   return encodedString;
+}
+
+#define NUM_SAMPLES 100
+#define NUM_DISCARD 10
+unsigned int samples[NUM_SAMPLES];
+
+void bubble_sort(unsigned int samples[], unsigned int len) {
+  for (int i = 0; i < (len-1); i++) {
+    for (int j = 0; j < (len-(i+1)); j++) {
+      if(samples[j] > samples[j+1]) {
+        unsigned int t = samples[j];
+        samples[j] = samples[j+1];
+        samples[j+1] = t;
+      }
+    }
+  }
+}
+
+// read in 100 values, sort them, and
+// discard the largest and smallest 10
+// then take the average of the rest
+unsigned int analogSample()
+{
+  unsigned int i;
+  unsigned long average;
+
+  for (i = 0; i < NUM_SAMPLES; i++)
+  {
+    samples[i] = analogRead(A0);
+    delay(1);
+  }
+
+  bubble_sort(samples, NUM_SAMPLES);
+
+  for (i = NUM_DISCARD; i < (NUM_SAMPLES-NUM_DISCARD); i++)
+  {
+    average += samples[i];
+  }
+  average = average / (NUM_SAMPLES - (2*NUM_DISCARD));
+
+  return (unsigned int)average;
+}
+
+void bubble_sort(float samples[], unsigned int len) {
+  for (int i = 0; i < (len-1); i++) {
+    for (int j = 0; j < (len-(i+1)); j++) {
+      if(samples[j] > samples[j+1]) {
+        float t = samples[j];
+        samples[j] = samples[j+1];
+        samples[j+1] = t;
+      }
+    }
+  }
+}
+
+#define TEMP_SAMPLES 20
+#define TEMP_DISCARD 2
+float tsamples[TEMP_SAMPLES];
+
+float temperatureSample()
+{
+  unsigned int i;
+  float average;
+
+  for (i = 0; i < TEMP_SAMPLES; i++)
+  {
+    tsamples[i] = weather.readTemperature();
+    delay(1);
+  }
+
+  bubble_sort(tsamples, TEMP_SAMPLES);
+
+  for (i = TEMP_DISCARD; i < (TEMP_SAMPLES-TEMP_DISCARD); i++)
+  {
+    average += tsamples[i];
+  }
+  average = average / (TEMP_SAMPLES - (2*TEMP_DISCARD));
+
+  return average;
+}
+
+float humiditySample()
+{
+  unsigned int i;
+  float average;
+
+  for (i = 0; i < TEMP_SAMPLES; i++)
+  {
+    tsamples[i] = weather.readHumidity();
+    delay(1);
+  }
+
+  bubble_sort(tsamples, TEMP_SAMPLES);
+
+  for (i = TEMP_DISCARD; i < (TEMP_SAMPLES-TEMP_DISCARD); i++)
+  {
+    average += tsamples[i];
+  }
+  average = average / (TEMP_SAMPLES - (2*TEMP_DISCARD));
+
+  return average;
 }
