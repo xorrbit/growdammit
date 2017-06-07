@@ -10,13 +10,23 @@ Prototype graph from logging overnight:
 ## Design
 ### Circuit
 
+#### Analog Multiplexer
+* E (6) connected to GND
+* GND (8) connected to GND
+* S1 (9) connected to GND
+* S0 (10) connected to ESP D3 (GPIO0)
+* A0 (12) connected to ambient light SIG
+* AN (13) connected to ESP AD0
+* A1 (14) connected to soil moisture SIG
+* VCC (16) connected to 3.3v
+
 #### Soil Moisture Sensor
-* SIG pin connected to AD0
+* SIG pin connected to mux 14 (A1)
 * GND pin connected to GND
 * VCC pin connected to D2 (GPIO4)
 
 #### Ambient Light Sensor
-* SIG pin connected to AD0
+* SIG pin connected to mux 12 (A0)
 * GND pin connected to GND
 * VCC pin connected to D1 (GPIO5)
 
@@ -31,6 +41,7 @@ Prototype graph from logging overnight:
 * Soil Moisture Sensor
 * Temperature and Humidity Sensor
 * Ambient Light Sensor
+* Analog Multiplexer
 * Solar Buddy
 * Solar Panel
 * Lipo
@@ -62,6 +73,11 @@ Prototype graph from logging overnight:
 * Product link: https://www.sparkfun.com/products/8688
 * Datasheet: https://www.sparkfun.com/datasheets/Sensors/Imaging/TEMT6000.pdf
 * Hookup guide: https://learn.sparkfun.com/tutorials/temt6000-ambient-light-sensor-hookup-guide
+
+## Analog Multiplexer
+* CD74HC4052E
+* Product ink: https://www.digikey.ca/product-detail/en/texas-instruments/CD74HC4052E/296-9217-5-ND/376770
+* Datasheet: https://www.ti.com/lit/ds/symlink/cd74hc4051.pdf
 
 ## Solar Buddy
 * Product link: https://www.sparkfun.com/products/12885
