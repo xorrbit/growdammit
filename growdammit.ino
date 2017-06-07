@@ -1,7 +1,7 @@
 // comment out this next line to enable debug mode
 // this sets the reporting period to 10 seconds instead of one minute
 // and outputs on the serial port
-#define DEBUG
+//#define DEBUG
 
 // ssid info goes in here
 #include "config.h"
@@ -13,23 +13,15 @@
 #include <SparkFunHTU21D.h>
 #include <Wire.h>
 
-// Soil Moisture Sensor
-//    SIG pin connected to AD0
-//    GND pin connected to GND
-//    VCC pin connected to D2 (GPIO4)
+// =INDIRECT("R[0]C[-6]",false)/86400+"1-Jan-1970"-(5/24)
+#define DATETIME_JAZZ "%3DINDIRECT%28%22R%5B0%5DC%5B-6%5D%22%2Cfalse%29%2F86400%2B%221-Jan-1970%22-%285%2F24%29"
+// =INDIRECT("R[0]C[-1]", false)
+#define TIME_JAZZ "%3DINDIRECT%28%22R%5B0%5DC%5B-1%5D%22%2Cfalse%29"
+
+// MUX LOW = light, HIGH = soil
+#define MUX 0
 #define SOIL_ENABLE  4
-//
-// Ambient Light Sensor
-//    SIG pin connected to AD0
-//    GND pin connected to GND
-//    VCC pin connected to D1 (GPIO5)
 #define LIGHT_ENABLE 5
-//
-// Temperature and Humidity Sensor
-//    GND pin connected to GND
-//    3.3V pin connected to 3.3V
-//    DA pin connected to D6 (GPIO12)
-//    CL pin connected to D5 (GPIO14)
 #define WEATHER_DA 12
 #define WEATHER_CL 14
 
@@ -59,7 +51,7 @@ float humidity, temperature;
 
 unsigned int i, len;
 
-char https_url[256];
+char https_url[512];
 
 void setup() {
   // disables soil and light sensors on boot
@@ -67,6 +59,7 @@ void setup() {
   digitalWrite(SOIL_ENABLE, LOW);
   pinMode(LIGHT_ENABLE, OUTPUT);
   digitalWrite(LIGHT_ENABLE, LOW);
+  pinMode(MUX, OUTPUT);
 
   Wire.begin(WEATHER_DA, WEATHER_CL);
   weather.begin();
@@ -94,23 +87,41 @@ void setup() {
 #endif
 }
 
+unsigned int sample_ambient_light()
+{
+  unsigned int ambient_light;
+  
+  digitalWrite(LIGHT_ENABLE, HIGH);
+  digitalWrite(MUX, LOW);
+  delay(10);
+  ambient_light = analogSample();
+  digitalWrite(LIGHT_ENABLE, LOW);
+
+  return ambient_light;
+}
+
+
+unsigned int sample_soil_moisture()
+{
+  unsigned int soil_moisture;
+  
+  digitalWrite(SOIL_ENABLE, HIGH);
+  digitalWrite(MUX, HIGH);
+  delay(10);
+  soil_moisture = analogSample();
+  digitalWrite(SOIL_ENABLE, LOW);
+
+  return soil_moisture;
+}
+
+
 void loop() {
   digitalWrite(LED_BUILTIN, LOW);
 
-  // read light sensor
-  digitalWrite(LIGHT_ENABLE, HIGH);
-  delay(100);
-  ambient_light = analogSample();
-  digitalWrite(LIGHT_ENABLE, LOW);
-  delay(100);
+  ambient_light = sample_ambient_light();
 
-  // read soil sensor
-  digitalWrite(SOIL_ENABLE, HIGH);
-  delay(100);
-  soil_moisture = analogSample();
-  digitalWrite(SOIL_ENABLE, LOW);
-  delay(100);
-
+  soil_moisture = sample_soil_moisture();
+  
   // read humidity and temperature
   humidity = humiditySample();
   dtostrf(humidity, 5, 2, humidity_cstr);
@@ -128,6 +139,10 @@ void loop() {
   len += sprintf(https_url+len, "&chip_id=%d", chip_id);
   len += sprintf(https_url+len, "&build_time=%s", build_time.c_str());
   len += sprintf(https_url+len, "&reset_time=%d", reset_time);
+  len += sprintf(https_url+len, "&datetime=%s", DATETIME_JAZZ);
+  //len += sprintf(https_url+len, DATETIME_JAZZ);
+  len += sprintf(https_url+len, "&time=%s", TIME_JAZZ);
+  //len += sprintf(https_url+len, TIME_JAZZ);
 
   https.connect(logging_host, 443);
   https.print(String("GET ") + https_url + " HTTP/1.1\r\n" +
@@ -314,3 +329,4 @@ float humiditySample()
 
   return average;
 }
+
