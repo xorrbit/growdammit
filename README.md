@@ -19,6 +19,7 @@ Prototype graph from logging overnight:
 * AN (13) connected to ESP AD0
 * A1 (14) connected to soil moisture SIG
 * VCC (16) connected to 3.3v
+![blah](https://i.imgur.com/D2DNbd4.png)
 
 #### Soil Moisture Sensor
 * SIG pin connected to mux 14 (A1)
