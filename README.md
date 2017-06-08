@@ -10,6 +10,8 @@ Prototype graph from logging overnight:
 ## Design
 ### Circuit
 
+![schematic](schematic.png)
+
 #### Analog Multiplexer
 * E (6) connected to GND
 * GND (8) connected to GND
